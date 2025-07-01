@@ -13,6 +13,9 @@ const JwtKey = 'e-comm';
 app.use(express.json());
 app.use(cors());
 
+app.get('/', (req, res) => {
+  res.send('✅ API is running...');
+});
 app.post('/register', async (req, res) => {
   let user = new User({ ...req.body, role: 'user' }); 
   let result = await user.save();
@@ -236,5 +239,8 @@ function verifyToken(req, res, next) {
     }
 }
 
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log(`✅ Server is running on port ${port}`);
+});
 
-app.listen(5000);
