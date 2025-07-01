@@ -6,6 +6,8 @@ const Login = ({ setUser }) => {
   const [Password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (user) {
@@ -14,7 +16,7 @@ const Login = ({ setUser }) => {
   }, [navigate]);
 
   const handlelogin = async () => {
-    let result = await fetch('http://localhost:5000/login', {
+    let result = await fetch(`${API_URL}/login`, {
       method: 'POST',
       body: JSON.stringify({ email: Email, password: Password }),
       headers: {
@@ -27,7 +29,7 @@ const Login = ({ setUser }) => {
     if (result.auth) {
       localStorage.setItem('user', JSON.stringify(result.user));
       localStorage.setItem('token', JSON.stringify(result.auth));
-      setUser(result.user); // ✅ this will help restrict features like Add Product for admins only
+      setUser(result.user);
       navigate('/');
     } else {
       alert('Please enter correct details');

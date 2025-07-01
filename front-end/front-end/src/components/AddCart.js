@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import "../App.css";
 import { useCart } from './CartContext';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Cart = () => {
   const { cartItems, setCartItems } = useCart();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
     getCartItems();
@@ -15,7 +17,7 @@ const Cart = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     const token = JSON.parse(localStorage.getItem("token"));
 
-    const response = await fetch(`http://localhost:5000/cart/${user._id}`, {
+    const response = await fetch(`${API_URL}/cart/${user._id}`, {
       headers: {
         authorization: `bearer ${token}`
       }
@@ -23,12 +25,12 @@ const Cart = () => {
 
     const result = await response.json();
     if (Array.isArray(result)) {
-  const patched = result.map(item => ({
-    ...item,
-    quantity: item.quantity || 1 
-  }));
-  setCartItems(patched);  
-}else {
+      const patched = result.map(item => ({
+        ...item,
+        quantity: item.quantity || 1
+      }));
+      setCartItems(patched);
+    } else {
       console.error("Cart fetch failed", result);
       setCartItems([]);
     }
@@ -38,7 +40,7 @@ const Cart = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     const token = JSON.parse(localStorage.getItem("token"));
 
-    const response = await fetch(`http://localhost:5000/cart/${user._id}/${productId}`, {
+    const response = await fetch(`${API_URL}/cart/${user._id}/${productId}`, {
       method: "DELETE",
       headers: {
         authorization: `bearer ${token}`
@@ -56,7 +58,7 @@ const Cart = () => {
 
   const handleProceedToPay = () => {
     alert("Proceeding to payment...");
-    navigate('/payment'); 
+    navigate('/payment');
   };
 
   return (

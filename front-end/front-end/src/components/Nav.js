@@ -6,6 +6,7 @@ import { useCart } from './CartContext';
 const Nav = ({ darkMode, setDarkMode }) => {
     const navigate = useNavigate();
     const { cartCount } = useCart();
+
     useEffect(() => {
         console.log('🛒 Nav cartCount updated:', cartCount);
     }, [cartCount]);

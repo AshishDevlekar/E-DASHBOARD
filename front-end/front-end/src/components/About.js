@@ -1,5 +1,8 @@
 import React from "react";
 
+// Optional: API URL available for future use
+const API_URL = process.env.REACT_APP_API_URL;
+
 const About = () => {
   return (
     <div className="about-page" style={{ padding: "2rem" }}>

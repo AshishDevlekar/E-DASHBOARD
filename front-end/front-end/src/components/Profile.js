@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+const API_BASE = process.env.REACT_APP_API_URL;
+
 const Profile = () => {
   const [history, setHistory] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -11,12 +13,18 @@ const Profile = () => {
 
       if (!user || !token) return;
 
-      const res = await fetch(`http://localhost:5000/purchase-history/${user._id}`, {
-        headers: { authorization: `Bearer ${token}` }
-      });
+      try {
+        const res = await fetch(`${API_BASE}/purchase-history/${user._id}`, {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        });
 
-      const data = await res.json();
-      setHistory(data);
+        const data = await res.json();
+        setHistory(data);
+      } catch (error) {
+        console.error("Failed to fetch purchase history:", error);
+      }
     };
 
     fetchHistory();
@@ -40,8 +48,17 @@ const Profile = () => {
         {filtered.length > 0 ? (
           filtered.map((item, i) => (
             <li key={i}>
-              <strong>{item.productName}</strong> - ₹{item.price} - 
-              <span style={{ color: item.status === "success" ? "green" : item.status === "failed" ? "red" : "orange" }}>
+              <strong>{item.productName}</strong> – ₹{item.price} –{" "}
+              <span
+                style={{
+                  color:
+                    item.status === "success"
+                      ? "green"
+                      : item.status === "failed"
+                      ? "red"
+                      : "orange",
+                }}
+              >
                 {item.status}
               </span>
             </li>

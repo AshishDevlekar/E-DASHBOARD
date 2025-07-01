@@ -1,20 +1,23 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 
 const CartContext = createContext();
+const API_URL = process.env.REACT_APP_API_URL;
 
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+
   useEffect(() => {
     console.log("🛒 cartItems updated:", cartItems);
   }, [cartItems]);
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     const token = JSON.parse(localStorage.getItem("token"));
 
     if (user && token) {
-      fetch(`http://localhost:5000/cart/${user._id}`, {
+      fetch(`${API_URL}/cart/${user._id}`, {
         headers: { authorization: `bearer ${token}` },
       })
         .then(res => res.json())

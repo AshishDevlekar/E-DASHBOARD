@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCart } from './CartContext';
 import { useNavigate } from 'react-router-dom';
-import '../App.css'; 
+import '../App.css';
 
 const Payment = () => {
   const { cartItems, setCartItems } = useCart();
@@ -17,54 +17,54 @@ const Payment = () => {
   );
 
   const handlePayment = async () => {
-  const cardRegex = /^\d{16}$/;
-  const cvvRegex = /^\d{3}$/;
-  const nameRegex = /^[A-Za-z\s]+$/;
+    const cardRegex = /^\d{16}$/;
+    const cvvRegex = /^\d{3}$/;
+    const nameRegex = /^[A-Za-z\s]+$/;
 
-  if (!name || !cardNumber || !cvv) {
-    alert("⚠️ Please fill in all payment fields.");
-    return;
-  }
-
-  if (!cardRegex.test(cardNumber)) {
-    alert("⚠️ Card number must be exactly 16 digits.");
-    return;
-  }
-
-  if (!cvvRegex.test(cvv)) {
-    alert("⚠️ CVV must be exactly 3 digits.");
-    return;
-  }
-
-  if (!nameRegex.test(name)) {
-    alert("⚠️ Name should only contain letters and spaces.");
-    return;
-  }
-
-  const user = JSON.parse(localStorage.getItem("user"));
-  const token = JSON.parse(localStorage.getItem("token"));
-
-  try {
-    const res = await fetch(`http://localhost:5000/cart/clear/${user._id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-
-    if (res.ok) {
-      alert("💳 Payment Successful!");
-      setCartItems([]);
-      navigate('/profile');
-    } else {
-      alert("❌ Failed to clear cart on server.");
+    if (!name || !cardNumber || !cvv) {
+      alert("⚠️ Please fill in all payment fields.");
+      return;
     }
-  } catch (err) {
-    console.error("❌ Payment error:", err);
-    alert("❌ Payment failed. Please try again.");
-  }
-};
 
+    if (!cardRegex.test(cardNumber)) {
+      alert("⚠️ Card number must be exactly 16 digits.");
+      return;
+    }
+
+    if (!cvvRegex.test(cvv)) {
+      alert("⚠️ CVV must be exactly 3 digits.");
+      return;
+    }
+
+    if (!nameRegex.test(name)) {
+      alert("⚠️ Name should only contain letters and spaces.");
+      return;
+    }
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = JSON.parse(localStorage.getItem("token"));
+    const API_URL = process.env.REACT_APP_API_URL;
+
+    try {
+      const res = await fetch(`${API_URL}/cart/clear/${user._id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        alert("💳 Payment Successful!");
+        setCartItems([]);
+        navigate('/profile');
+      } else {
+        alert("❌ Failed to clear cart on server.");
+      }
+    } catch (err) {
+      console.error("❌ Payment error:", err);
+      alert("❌ Payment failed. Please try again.");
+    }
+  };
 
   return (
     <div className="payment-page">

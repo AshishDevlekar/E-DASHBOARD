@@ -1,10 +1,13 @@
-import './App.css';
-import Nav from './components/Nav';
+import React, { useState, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import './App.css';
+
+// Components
+import Nav from './components/Nav';
 import Footer from './components/Footer';
 import Signup from './components/Signup';
-import PrivateComponent from './components/PrivateComponent';
 import Login from './components/Login';
+import PrivateComponent from './components/PrivateComponent';
 import AddProduct from './components/AddProduct';
 import ProductList from './components/ProductList';
 import UpdateProduct from './components/UpdateProduct';
@@ -17,31 +20,30 @@ import Contact from './components/Contact';
 import PrivacyPolicy from './components/Privacy';
 import TermsOfService from './components/TermsofServices';
 
+// Fonts/Icons
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
-import React, { useState, useEffect } from 'react';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("darkMode") === "true";
-    setDarkMode(saved);
+    // Load user and dark mode preference
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    const storedUser = localStorage.getItem('user');
 
-    const storedUser = localStorage.getItem("user");
+    setDarkMode(savedDarkMode);
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("darkMode", darkMode);
+    localStorage.setItem('darkMode', darkMode);
   }, [darkMode]);
 
   return (
-    <div className={darkMode ? 'App dark' : "App"}>
+    <div className={darkMode ? 'App dark' : 'App'}>
       <Nav darkMode={darkMode} setDarkMode={setDarkMode} />
-      
-      {/* ✅ Wrap Routes inside main */}
+
       <main>
         <Routes>
           <Route element={<PrivateComponent />}>
@@ -58,15 +60,13 @@ function App() {
             <Route path='/userdetail' element={<UserDetail />} />
           </Route>
 
-          {/* Public routes */}
+          {/* Public Routes */}
           <Route path='/signup' element={<Signup />} />
           <Route path='/login' element={<Login setUser={setUser} />} />
           <Route path='/about' element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/termsofservice" element={<TermsOfService />} />
-
-
+          <Route path='/contact' element={<Contact />} />
+          <Route path='/privacy' element={<PrivacyPolicy />} />
+          <Route path='/termsofservice' element={<TermsOfService />} />
         </Routes>
       </main>
 

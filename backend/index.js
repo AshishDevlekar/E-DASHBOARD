@@ -1,15 +1,25 @@
 const express = require('express');
 const cors = require('cors');
-require('./db/config');
+const mongoose = require('mongoose');
+const path = require("path");
+const Jwt = require('jsonwebtoken');
+require('dotenv').config(); // Load environment variables
+
 const User = require('./db/User');
 const Product = require('./db/Product');
 const Cart = require('./db/Cart');
 const Purchase = require('./db/Purchase');
-const path = require("path");
-const Jwt = require('jsonwebtoken');
-const app = express();
 
-const JwtKey = 'e-comm';
+const app = express();
+const JwtKey = process.env.JWT_SECRET || 'fallback-secret'; // Fallback for safety
+
+// ✅ MongoDB Connection
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 app.use(express.json());
 app.use(cors());
@@ -50,13 +60,13 @@ app.post('/login', async (req, res) => {
 
 // ✅ Product Routes
 app.post('/add-product', verifyToken, async (req, res) => {
-  let product = new Product({ ...req.body, dateAdded: new Date() });
-  let result = await product.save();
+  const product = new Product({ ...req.body, dateAdded: new Date() });
+  const result = await product.save();
   res.send(result);
 });
 
 app.get('/products/:userId', verifyToken, async (req, res) => {
-  let products = await Product.find({ userId: req.params.userId });
+  const products = await Product.find({ userId: req.params.userId });
   res.send(products.length > 0 ? products : { result: "No Products Found" });
 });
 
@@ -75,12 +85,12 @@ app.get('/all-products', verifyToken, async (req, res) => {
 });
 
 app.put('/product/:id', verifyToken, async (req, res) => {
-  let result = await Product.updateOne({ _id: req.params.id }, { $set: req.body });
+  const result = await Product.updateOne({ _id: req.params.id }, { $set: req.body });
   res.send(result);
 });
 
 app.get('/search/:key', verifyToken, async (req, res) => {
-  let result = await Product.find({
+  const result = await Product.find({
     '$or': [
       { name: { $regex: req.params.key, $options: 'i' } },
       { company: { $regex: req.params.key, $options: 'i' } },
@@ -228,7 +238,6 @@ function verifyToken(req, res, next) {
 
 // ✅ Serve React frontend in production
 app.use(express.static(path.join(__dirname, '../frontend/build')));
-
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
 });

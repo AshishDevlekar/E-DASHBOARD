@@ -1,42 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE = process.env.REACT_APP_API_URL;
+
 const Signup = () => {
-  const [Name, setName] = useState("");
-  const [Password, setPassword] = useState("");
-  const [Email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     const auth = localStorage.getItem('user');
-    if (auth) {
-      navigate('/');
-    }
+    if (auth) navigate('/');
   }, [navigate]);
 
   const collectData = async () => {
-  const url = "http://localhost:5000/register";
+    if (!name || !email || !password) {
+      alert("⚠️ Please fill in all fields");
+      return;
+    }
 
-  let result = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify({ name: Name, email: Email, password: Password }),
-    headers: {
-      'Content-Type': 'application/json'
-    },
-  });
+    try {
+      const res = await fetch(`${API_BASE}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
 
-  result = await result.json();
+      const result = await res.json();
 
-  if (result.auth) {
-  localStorage.setItem("user", JSON.stringify(result.user));
-  localStorage.setItem("token", result.auth);
-  alert("Registration successful!");
-  navigate('/');
-} else {
-  alert("Registration failed");
-}
-
-};
+      if (res.ok && result.auth) {
+        localStorage.setItem("user", JSON.stringify(result.user));
+        localStorage.setItem("token", result.auth);
+        alert("✅ Registration successful!");
+        navigate('/');
+      } else {
+        alert("❌ Registration failed");
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      alert("❌ Something went wrong. Try again.");
+    }
+  };
 
   return (
     <div className='page-center'>
@@ -45,25 +50,25 @@ const Signup = () => {
         <input
           className='inputBox'
           type='text'
-          value={Name}
+          value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder='Enter Name'
         />
         <input
           className='inputBox'
           type='email'
-          value={Email}
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder='Enter Email'
         />
         <input
           className='inputBox'
           type='password'
-          value={Password}
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder='Enter Password'
         />
-        <button onClick={collectData} className='registerButton' type='button'>
+        <button onClick={collectData} className='registerButton'>
           Sign Up
         </button>
       </div>
