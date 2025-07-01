@@ -14,7 +14,7 @@ const app = express();
 const JwtKey = process.env.JWT_SECRET || 'fallback-secret'; // Fallback for safety
 
 // ✅ MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -24,8 +24,8 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use(express.json());
 app.use(cors());
 
-// ✅ API Routes
-app.get('/:id', (req, res) => {
+// ✅ API Root Route
+app.get('/', (req, res) => {
   res.send('✅ API is running...');
 });
 
