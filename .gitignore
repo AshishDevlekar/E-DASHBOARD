@@ -1,0 +1,12 @@
+# Ignore all node_modules
+node_modules/
+**/node_modules/
+
+# Ignore logs
+*.log
+
+# Ignore environment files
+.env
+
+# Ignore build folders (optional)
+frontend/build/
