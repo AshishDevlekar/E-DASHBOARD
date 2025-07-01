@@ -27,12 +27,15 @@ const Signup = () => {
 
   result = await result.json();
 
-  if (result) {
-    alert("Registration successful! Please login to continue.");
-    navigate('/login'); // ✅ Redirect to login page
-  } else {
-    alert("Registration failed");
-  }
+  if (result.auth) {
+  localStorage.setItem("user", JSON.stringify(result.user));
+  localStorage.setItem("token", result.auth);
+  alert("Registration successful!");
+  navigate('/');
+} else {
+  alert("Registration failed");
+}
+
 };
 
   return (
