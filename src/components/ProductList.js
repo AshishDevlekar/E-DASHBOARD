@@ -29,8 +29,13 @@ const ProductList = () => {
   };
 
   const deleteProduct = async (id) => {
-    let result = await fetch(`${API_BASE}/all-product/${id}`, {
-      method: 'DELETE'
+    const token = JSON.parse(localStorage.getItem("token"));
+
+    let result = await fetch(`${API_BASE}/product/${id}`, {  // ✅ Fixed endpoint
+      method: 'DELETE',
+      headers: {
+        authorization: `bearer ${token}`  // ✅ Added auth header
+      }
     });
 
     result = await result.json();
