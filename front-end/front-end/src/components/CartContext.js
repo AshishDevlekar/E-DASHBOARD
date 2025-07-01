@@ -6,18 +6,15 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
-  const API_BASE = process.env.REACT_APP_API_URL;
-
   useEffect(() => {
     console.log("🛒 cartItems updated:", cartItems);
   }, [cartItems]);
-
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     const token = JSON.parse(localStorage.getItem("token"));
 
     if (user && token) {
-      fetch(`${API_BASE}/cart/${user._id}`, {
+      fetch(`http://localhost:5000/cart/${user._id}`, {
         headers: { authorization: `bearer ${token}` },
       })
         .then(res => res.json())

@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 const Profile = () => {
   const [history, setHistory] = useState([]);
   const [filter, setFilter] = useState('all');
-  const API_BASE = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -12,7 +11,7 @@ const Profile = () => {
 
       if (!user || !token) return;
 
-      const res = await fetch(`${API_BASE}/purchase-history/${user._id}`, {
+      const res = await fetch(`http://localhost:5000/purchase-history/${user._id}`, {
         headers: { authorization: `Bearer ${token}` }
       });
 
@@ -21,7 +20,7 @@ const Profile = () => {
     };
 
     fetchHistory();
-  }, [API_BASE]);
+  }, []);
 
   const filtered = filter === 'all'
     ? history

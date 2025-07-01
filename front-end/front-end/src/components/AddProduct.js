@@ -11,12 +11,10 @@ const AddProduct = () => {
   const [description, setDescription] = useState('');
   const navigate = useNavigate();
 
-  const API_BASE = process.env.REACT_APP_API_URL;
-
   const addProduct = async () => {
     const userId = JSON.parse(localStorage.getItem('user'))?._id;
 
-    const result = await fetch(`${API_BASE}/add-product`, {
+    const result = await fetch("http://localhost:5000/add-product", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

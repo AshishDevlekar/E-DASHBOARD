@@ -1,12 +1,14 @@
-# Ignore all node_modules
+# Node
 node_modules/
-**/node_modules/
-
-# Ignore logs
-*.log
-
-# Ignore environment files
 .env
 
-# Ignore build folders (optional)
+# Build
 frontend/build/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

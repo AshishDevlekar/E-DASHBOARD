@@ -1,5 +1,6 @@
 import './App.css';
 import Nav from './components/Nav';
+import { Route, Routes } from 'react-router-dom';
 import Footer from './components/Footer';
 import Signup from './components/Signup';
 import PrivateComponent from './components/PrivateComponent';
@@ -19,12 +20,10 @@ import TermsOfService from './components/TermsofServices';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import React, { useState, useEffect } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
-  const location = useLocation();
 
   useEffect(() => {
     const saved = localStorage.getItem("darkMode") === "true";
@@ -39,9 +38,10 @@ function App() {
   }, [darkMode]);
 
   return (
-    <div className={darkMode ? 'App dark' : 'App'}>
+    <div className={darkMode ? 'App dark' : "App"}>
       <Nav darkMode={darkMode} setDarkMode={setDarkMode} />
-
+      
+      {/* ✅ Wrap Routes inside main */}
       <main>
         <Routes>
           <Route element={<PrivateComponent />}>
@@ -58,18 +58,19 @@ function App() {
             <Route path='/userdetail' element={<UserDetail />} />
           </Route>
 
-          {/* Public Routes */}
+          {/* Public routes */}
           <Route path='/signup' element={<Signup />} />
           <Route path='/login' element={<Login setUser={setUser} />} />
           <Route path='/about' element={<About />} />
-          <Route path='/contact' element={<Contact />} />
-          <Route path='/privacy' element={<PrivacyPolicy />} />
-          <Route path='/termsofservice' element={<TermsOfService />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/termsofservice" element={<TermsOfService />} />
+
+
         </Routes>
       </main>
 
-      {/* Optional: Hide Footer on Login/Signup if desired */}
-      {!['/login', '/signup'].includes(location.pathname) && <Footer />}
+      <Footer />
     </div>
   );
 }

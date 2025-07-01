@@ -9,6 +9,7 @@ const UpdateProduct = () => {
   const [image, setImage] = useState('');
   const [rating, setRating] = useState('');
   const [description, setDescription] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const params = useParams();
   const navigate = useNavigate();
@@ -18,40 +19,64 @@ const UpdateProduct = () => {
   }, []);
 
   const getProductDetails = async () => {
-    let result = await fetch(`http://localhost:5000/product/${params.id}`);
-    result = await result.json();
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/product/${params.id}`);
+      if (!res.ok) throw new Error("Failed to fetch product");
+      const result = await res.json();
 
-    setName(result.name);
-    setPrice(result.price);
-    setCategory(result.category);
-    setCompany(result.company);
-    setImage(result.image || '');
-    setRating(result.rating || '');
-    setDescription(result.description || '');
+      setName(result.name || '');
+      setPrice(result.price || '');
+      setCategory(result.category || '');
+      setCompany(result.company || '');
+      setImage(result.image || '');
+      setRating(result.rating || '');
+      setDescription(result.description || '');
+    } catch (err) {
+      console.error("❌ Error fetching product:", err);
+      alert("Failed to load product details");
+    }
   };
 
   const updateProduct = async () => {
     const token = JSON.parse(localStorage.getItem("token"));
-    const result = await fetch(`http://localhost:5000/product/${params.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'authorization': `bearer ${token}`
-      },
-      body: JSON.stringify({
-        name,
-        price,
-        category,
-        company,
-        image,
-        rating,
-        description
-      })
-    });
+    if (!name || !price || !category || !company) {
+      alert("⚠️ Please fill all required fields.");
+      return;
+    }
 
-    const data = await result.json();
-    console.log(data);
-    navigate('/');
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/product/${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': `bearer ${token}`
+        },
+        body: JSON.stringify({
+          name,
+          price,
+          category,
+          company,
+          image,
+          rating,
+          description
+        })
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert("✅ Product updated successfully");
+        navigate('/');
+      } else {
+        alert("❌ Failed to update product");
+        console.error(result);
+      }
+    } catch (err) {
+      console.error("❌ Update error:", err);
+      alert("An error occurred during update.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -66,7 +91,9 @@ const UpdateProduct = () => {
       <input type='text' placeholder='Enter Rating (e.g. 4.5)' value={rating} onChange={(e) => setRating(e.target.value)} />
       <textarea placeholder='Enter Product Description' value={description} onChange={(e) => setDescription(e.target.value)} />
 
-      <button onClick={updateProduct} className='appButton'>Update Product</button>
+      <button onClick={updateProduct} className='appButton' disabled={loading}>
+        {loading ? 'Updating...' : 'Update Product'}
+      </button>
     </div>
   );
 };

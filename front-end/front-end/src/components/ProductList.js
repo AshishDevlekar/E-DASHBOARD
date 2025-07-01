@@ -4,7 +4,6 @@ import ProductCard from './ProductCard';
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
-  const API_BASE = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     getProducts();
@@ -18,7 +17,7 @@ const ProductList = () => {
       return;
     }
 
-    let result = await fetch(`${API_BASE}/all-products`, {
+    let result = await fetch(`http://localhost:5000/all-products`, {
       headers: {
         authorization: `bearer ${token}`
       }
@@ -29,7 +28,7 @@ const ProductList = () => {
   };
 
   const deleteProduct = async (id) => {
-    let result = await fetch(`${API_BASE}/all-product/${id}`, {
+    let result = await fetch(`http://localhost:5000/all-product/${id}`, {
       method: 'DELETE'
     });
 
@@ -40,32 +39,33 @@ const ProductList = () => {
   };
 
   const searchHandle = async (e) => {
-    let key = e.target.value.trim();
-    const token = JSON.parse(localStorage.getItem("token"));
-    const user = JSON.parse(localStorage.getItem("user"));
+  let key = e.target.value.trim();
+  const token = JSON.parse(localStorage.getItem("token"));
+  const user = JSON.parse(localStorage.getItem("user"));
 
-    if (!token || !user) {
-      console.error("User or token not found in localStorage");
-      return;
+  if (!token || !user) {
+    console.error("User or token not found in localStorage");
+    return;
+  }
+
+  if (key) {
+    try {
+      const response = await fetch(`http://localhost:5000/search/${key}`, {
+        headers: {
+          authorization: `bearer ${token}`
+        }
+      });
+
+      const result = await response.json();
+      setProducts(result.length > 0 ? result : []);
+    } catch (error) {
+      console.error("Search fetch failed:", error);
     }
+  } else {
+    getProducts();
+  }
+};
 
-    if (key) {
-      try {
-        const response = await fetch(`${API_BASE}/search/${key}`, {
-          headers: {
-            authorization: `bearer ${token}`
-          }
-        });
-
-        const result = await response.json();
-        setProducts(result.length > 0 ? result : []);
-      } catch (error) {
-        console.error("Search fetch failed:", error);
-      }
-    } else {
-      getProducts();
-    }
-  };
 
   const handleAddToCart = async (item) => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -85,7 +85,7 @@ const ProductList = () => {
       company: item.company
     };
 
-    const response = await fetch(`${API_BASE}/add-to-cart`, {
+    const response = await fetch("http://localhost:5000/add-to-cart", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -114,19 +114,19 @@ const ProductList = () => {
         onChange={searchHandle}
       />
       <div className="product-grid">
-        {products.length > 0 ? (
-          products.map((item) => (
-            <ProductCard
-              key={item._id}
-              product={item}
-              onAddToCart={() => handleAddToCart(item)}
-              onDelete={() => deleteProduct(item._id)}
-            />
-          ))
-        ) : (
-          <h1>No Result Found</h1>
-        )}
-      </div>
+  {products.length > 0 ? (
+    products.map((item, index) => (
+      <ProductCard
+        key={item._id}
+        product={item}
+        onAddToCart={() => handleAddToCart(item)}
+        onDelete={() => deleteProduct(item._id)}
+      />
+    ))
+  ) : (
+    <h1>No Result Found</h1>
+  )}
+</div>
     </div>
   );
 };

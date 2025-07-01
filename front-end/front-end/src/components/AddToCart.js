@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 const AddToCart = ({ product }) => {
   const { setCartItems } = useCart();
   const navigate = useNavigate();
-  const API_BASE = process.env.REACT_APP_API_URL;
 
   const handleAddToCart = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -18,7 +17,7 @@ const AddToCart = ({ product }) => {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/cart/add`, {
+      const response = await fetch(`http://localhost:5000/cart/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,7 +33,7 @@ const AddToCart = ({ product }) => {
       });
 
       if (response.ok) {
-        const cartRes = await fetch(`${API_BASE}/cart/${user._id}`, {
+        const cartRes = await fetch(`http://localhost:5000/cart/${user._id}`, {
           headers: { authorization: `bearer ${token}` }
         });
 
