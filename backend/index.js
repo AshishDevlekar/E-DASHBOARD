@@ -175,6 +175,24 @@ app.delete('/product/:id', verifyToken, async (req, res) => {
     res.status(500).send({ error: 'Failed to delete product' });
   }
 });
+// ✅ Delete specific cart item
+app.delete('/cart/:productId/:userId', verifyToken, async (req, res) => {
+  try {
+    const result = await Cart.deleteOne({
+      productId: req.params.productId,
+      userId: req.params.userId
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send({ error: 'Cart item not found' });
+    }
+
+    res.send({ success: true, message: 'Cart item deleted', result });
+  } catch (err) {
+    res.status(500).send({ error: 'Failed to delete cart item' });
+  }
+});
+
 
 app.put('/product/:id', verifyToken, async (req, res) => {
   try {
