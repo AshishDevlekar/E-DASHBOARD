@@ -24,6 +24,7 @@ app.use(express.json());
 // ✅ CORS Setup
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://e-dashboard-jnqm.vercel.app',
   'https://e-comm-676c-qdx37j5vo-ashish-devlekars-projects-bf9c690b.vercel.app'
 ];
 
