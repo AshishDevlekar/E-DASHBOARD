@@ -6,7 +6,7 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
-  const [skipInitialFetch, setSkipInitialFetch] = useState(false); // ✅ new
+  const [skipInitialFetch, setSkipInitialFetch] = useState(false);
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   useEffect(() => {
-    if (skipInitialFetch) return; // ✅ skip fetching if just cleared
+    if (skipInitialFetch) return;
 
     const user = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
@@ -63,8 +63,10 @@ export const CartProvider = ({ children }) => {
   };
 
   const clearCart = () => {
-    setSkipInitialFetch(true);       // ✅ block re-fetch
-    setCartItems([]);                // ✅ clear locally
+    setSkipInitialFetch(true);       // ✅ Prevent fetching stale cart from server
+    setCartItems([]);                // ✅ Clear cart locally
+
+    setTimeout(() => setSkipInitialFetch(false), 100); // ✅ Re-enable fetch after short delay
   };
 
   const cartCount = useMemo(() => {
@@ -76,7 +78,7 @@ export const CartProvider = ({ children }) => {
     setCartItems: updateCartItems,
     addToCart,
     removeFromCart,
-    clearCart,             // ✅ added
+    clearCart,
     cartCount,
   }), [cartItems, cartCount]);
 
