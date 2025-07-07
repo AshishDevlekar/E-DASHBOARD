@@ -175,24 +175,6 @@ app.delete('/product/:id', verifyToken, async (req, res) => {
     res.status(500).send({ error: 'Failed to delete product' });
   }
 });
-// ✅ Delete specific cart item
-app.delete('/cart/:productId/:userId', verifyToken, async (req, res) => {
-  try {
-    const result = await Cart.deleteOne({
-      'productId': req.params.productId,
-      userId: req.params.userId
-    });
-
-    if (result.deletedCount === 0) {
-      return res.status(404).send({ error: 'Cart item not found' });
-    }
-
-    res.send({ success: true, message: 'Cart item deleted', result });
-  } catch (err) {
-    res.status(500).send({ error: 'Failed to delete cart item' });
-  }
-});
-
 
 app.put('/product/:id', verifyToken, async (req, res) => {
   try {
@@ -253,6 +235,110 @@ app.get('/cart/:userId', verifyToken, async (req, res) => {
     res.send(result);
   } catch (err) {
     res.status(500).send({ error: 'Failed to fetch cart' });
+  }
+});
+
+// ✅ Delete specific cart item (Original route - URL params)
+app.delete('/cart/:productId/:userId', verifyToken, async (req, res) => {
+  try {
+    console.log('Delete request received:', {
+      productId: req.params.productId,
+      userId: req.params.userId
+    });
+
+    const result = await Cart.deleteOne({
+      'productId': req.params.productId,
+      'userId': req.params.userId
+    });
+
+    console.log('Delete result:', result);
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send({ error: 'Cart item not found' });
+    }
+
+    res.send({ success: true, message: 'Cart item deleted', result });
+  } catch (err) {
+    console.error('Delete cart item error:', err);
+    res.status(500).send({ error: 'Failed to delete cart item' });
+  }
+});
+
+// ✅ Alternative route for removing cart item with request body
+app.delete('/cart/remove', verifyToken, async (req, res) => {
+  try {
+    const { productId, userId } = req.body;
+    
+    if (!productId || !userId) {
+      return res.status(400).send({ error: 'ProductId and UserId are required' });
+    }
+
+    const result = await Cart.deleteOne({
+      'productId': productId,
+      'userId': userId
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send({ error: 'Cart item not found' });
+    }
+
+    res.send({ success: true, message: 'Cart item deleted', result });
+  } catch (err) {
+    console.error('Delete cart item error:', err);
+    res.status(500).send({ error: 'Failed to delete cart item' });
+  }
+});
+
+// ✅ Alternative route for removing cart item by cart item ID
+app.delete('/cart/item/:cartItemId', verifyToken, async (req, res) => {
+  try {
+    const result = await Cart.deleteOne({
+      '_id': req.params.cartItemId,
+      'userId': req.user._id // Ensure user can only delete their own cart items
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).send({ error: 'Cart item not found' });
+    }
+
+    res.send({ success: true, message: 'Cart item deleted', result });
+  } catch (err) {
+    console.error('Delete cart item error:', err);
+    res.status(500).send({ error: 'Failed to delete cart item' });
+  }
+});
+
+// ✅ Update cart item quantity
+app.put('/cart/update', verifyToken, async (req, res) => {
+  try {
+    const { productId, userId, quantity } = req.body;
+    
+    if (!productId || !userId || quantity === undefined) {
+      return res.status(400).send({ error: 'ProductId, UserId, and quantity are required' });
+    }
+
+    if (quantity <= 0) {
+      // If quantity is 0 or negative, remove the item
+      const result = await Cart.deleteOne({
+        'productId': productId,
+        'userId': userId
+      });
+      return res.send({ success: true, message: 'Cart item removed', result });
+    }
+
+    const result = await Cart.updateOne(
+      { 'productId': productId, 'userId': userId },
+      { $set: { quantity: quantity } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).send({ error: 'Cart item not found' });
+    }
+
+    res.send({ success: true, message: 'Cart item updated', result });
+  } catch (err) {
+    console.error('Update cart item error:', err);
+    res.status(500).send({ error: 'Failed to update cart item' });
   }
 });
 
