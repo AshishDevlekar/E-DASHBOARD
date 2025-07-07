@@ -6,6 +6,7 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [skipInitialFetch, setSkipInitialFetch] = useState(false); // ✅ new
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
@@ -13,6 +14,8 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   useEffect(() => {
+    if (skipInitialFetch) return; // ✅ skip fetching if just cleared
+
     const user = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
 
@@ -34,7 +37,7 @@ export const CartProvider = ({ children }) => {
           console.error('Error fetching cart:', error);
         });
     }
-  }, [API_BASE]);
+  }, [API_BASE, skipInitialFetch]);
 
   const addToCart = (newItem) => {
     setCartItems(prev => {
@@ -59,6 +62,11 @@ export const CartProvider = ({ children }) => {
     setCartItems(newItems);
   };
 
+  const clearCart = () => {
+    setSkipInitialFetch(true);       // ✅ block re-fetch
+    setCartItems([]);                // ✅ clear locally
+  };
+
   const cartCount = useMemo(() => {
     return cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
   }, [cartItems]);
@@ -68,6 +76,7 @@ export const CartProvider = ({ children }) => {
     setCartItems: updateCartItems,
     addToCart,
     removeFromCart,
+    clearCart,             // ✅ added
     cartCount,
   }), [cartItems, cartCount]);
 

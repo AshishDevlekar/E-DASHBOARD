@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../App.css';
 
 const Payment = () => {
-  const { cartItems, setCartItems } = useCart();
+  const { cartItems, clearCart } = useCart();
   const navigate = useNavigate();
 
   const [cardNumber, setCardNumber] = useState('');
@@ -74,8 +74,8 @@ const Payment = () => {
         });
       }
 
-      // ✅ Clear the cart (UPDATED URL)
-      await fetch(`${API_BASE}/cart/${user._id}`, {
+      // ✅ Clear cart from server
+      await fetch(`${API_BASE}/cart/clear/${user._id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
@@ -83,7 +83,7 @@ const Payment = () => {
       });
 
       alert("💳 Payment Successful!");
-      setCartItems([]); // Clear local cart state
+      clearCart(); // ✅ Clear frontend state properly
       navigate('/profile');
     } catch (err) {
       console.error("❌ Payment error:", err);
