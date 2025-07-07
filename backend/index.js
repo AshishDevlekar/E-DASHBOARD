@@ -179,7 +179,7 @@ app.delete('/product/:id', verifyToken, async (req, res) => {
 app.delete('/cart/:productId/:userId', verifyToken, async (req, res) => {
   try {
     const result = await Cart.deleteOne({
-      productId: req.params.productId,
+      'productId': req.params.productId,
       userId: req.params.userId
     });
 
