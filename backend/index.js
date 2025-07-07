@@ -21,12 +21,10 @@ mongoose.connect(process.env.MONGO_URI)
 // ✅ Middleware
 app.use(express.json());
 
-// ✅ CORS Setup - FIXED WITH CORRECT DOMAIN
+// ✅ CORS Setup - UPDATED WITH CURRENT FRONTEND DOMAIN
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://e-dashboard-zbg7.vercel.app',
-  'https://e-dashboard-iuv7.vercel.app',  // ✅ Added your actual frontend domain
-  'https://e-dashboard-jnqm.vercel.app',
+  'https://e-dashboard-am23.vercel.app',
   'https://e-comm-676c-qdx37j5vo-ashish-devlekars-projects-bf9c690b.vercel.app'
 ];
 
@@ -46,6 +44,52 @@ app.use(cors({
 // ✅ Root
 app.get('/', (req, res) => {
   res.send('✅ API is running...');
+});
+
+// ✅ Debug Route - Check MongoDB Atlas Connection
+app.get('/debug-db', async (req, res) => {
+  try {
+    // Check database connection status
+    const dbStatus = mongoose.connection.readyState;
+    const statusMap = {
+      0: 'disconnected',
+      1: 'connected',
+      2: 'connecting',
+      3: 'disconnecting'
+    };
+    
+    // Count documents in each collection
+    const productCount = await Product.countDocuments();
+    const userCount = await User.countDocuments();
+    const cartCount = await Cart.countDocuments();
+    const purchaseCount = await Purchase.countDocuments();
+    
+    // Get sample products
+    const sampleProducts = await Product.find({}).limit(5);
+    
+    // Get all collections
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    
+    res.json({
+      connectionStatus: statusMap[dbStatus],
+      databaseName: mongoose.connection.name,
+      collections: collections.map(c => c.name),
+      documentCounts: {
+        products: productCount,
+        users: userCount,
+        carts: cartCount,
+        purchases: purchaseCount
+      },
+      sampleProducts: sampleProducts,
+      mongoUri: process.env.MONGO_URI ? 'Set (hidden for security)' : 'Not set'
+    });
+  } catch (err) {
+    res.status(500).json({ 
+      error: err.message,
+      connectionStatus: 'error',
+      mongoUri: process.env.MONGO_URI ? 'Set (hidden for security)' : 'Not set'
+    });
+  }
 });
 
 // ✅ JWT Middleware
