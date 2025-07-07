@@ -10,6 +10,10 @@ const ProductCard = ({ product, onAddToCart, onDelete }) => {
     onAddToCart(product);
   };
 
+  // ✅ Check if user is admin
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user && user.role === "admin";
+
   return (
     <div className="product-card">
       <img
@@ -28,11 +32,17 @@ const ProductCard = ({ product, onAddToCart, onDelete }) => {
       <div className="card-actions">
         <button
           onClick={handleAddToCart}
-          disabled={!product.inStock} 
+          disabled={!product.inStock}
         >
           Add to Cart
         </button>
-        <button onClick={onDelete}>Delete</button>
+
+        {/* ✅ Show delete button only for admin */}
+        {isAdmin && (
+          <button onClick={onDelete} className="delete-btn">
+            Delete
+          </button>
+        )}
       </div>
     </div>
   );

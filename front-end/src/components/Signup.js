@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
-  const [Name, setName] = useState("");
-  const [Password, setPassword] = useState("");
-  const [Email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const API_BASE = process.env.REACT_APP_API_URL;
+  // Fallback to localhost if env variable is missing
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     const auth = localStorage.getItem('user');
@@ -17,7 +18,7 @@ const Signup = () => {
   }, [navigate]);
 
   const collectData = async () => {
-    if (!Name || !Email || !Password) {
+    if (!name || !email || !password) {
       setError("⚠️ All fields are required.");
       return;
     }
@@ -25,11 +26,13 @@ const Signup = () => {
     setError("");
     setLoading(true);
 
+    console.log("Using API URL:", API_BASE);  // Debug API URL
+
     try {
       const response = await fetch(`${API_BASE}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: Name, email: Email, password: Password })
+        body: JSON.stringify({ name, email, password })
       });
 
       const result = await response.json();
@@ -40,10 +43,10 @@ const Signup = () => {
         alert("✅ Registration successful!");
         navigate('/');
       } else {
-        setError(result.error || "❌ Registration failed. Try again.");
+        setError(result.result || result.error || "❌ Registration failed. Try again.");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Signup error:", err);
       setError("🚫 Something went wrong. Please try again later.");
     } finally {
       setLoading(false);
@@ -60,7 +63,7 @@ const Signup = () => {
         <input
           className='inputBox'
           type='text'
-          value={Name}
+          value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder='Enter Name'
           autoComplete='name'
@@ -68,7 +71,7 @@ const Signup = () => {
         <input
           className='inputBox'
           type='email'
-          value={Email}
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder='Enter Email'
           autoComplete='email'
@@ -76,7 +79,7 @@ const Signup = () => {
         <input
           className='inputBox'
           type='password'
-          value={Password}
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder='Enter Password'
           autoComplete='new-password'

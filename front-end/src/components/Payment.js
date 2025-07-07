@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCart } from './CartContext';
 import { useNavigate } from 'react-router-dom';
-import '../App.css'; 
+import '../App.css';
 
 const Payment = () => {
   const { cartItems, setCartItems } = useCart();
@@ -12,7 +12,7 @@ const Payment = () => {
   const [name, setName] = useState('');
 
   const totalAmount = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + item.price * (item.quantity || 1),
     0
   );
 
@@ -41,25 +41,50 @@ const Payment = () => {
       return;
     }
 
-    const user = JSON.parse(localStorage.getItem("user"));
-    const token = JSON.parse(localStorage.getItem("token"));
-    const API_BASE = process.env.REACT_APP_API_URL;
+    let user = null;
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        user = JSON.parse(storedUser);
+      }
+    } catch (err) {
+      alert("❌ Invalid user data. Please log in again.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     try {
-      const res = await fetch(`${API_BASE}/cart/clear/${user._id}`, {
+      // ✅ Save purchases
+      for (const item of cartItems) {
+        await fetch(`${API_BASE}/purchase`, {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            userId: user._id,
+            productId: item.productId || item._id, // <-- FIX HERE
+            productName: item.name,
+            price: item.price,
+            quantity: item.quantity || 1,
+          })
+        });
+      }
+
+      // ✅ Clear cart from server
+      await fetch(`${API_BASE}/cart/clear/${user._id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
 
-      if (res.ok) {
-        alert("💳 Payment Successful!");
-        setCartItems([]);
-        navigate('/profile');
-      } else {
-        alert("❌ Failed to clear cart on server.");
-      }
+      alert("💳 Payment Successful!");
+      setCartItems([]);
+      navigate('/profile');
     } catch (err) {
       console.error("❌ Payment error:", err);
       alert("❌ Payment failed. Please try again.");

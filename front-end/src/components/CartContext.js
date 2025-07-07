@@ -6,7 +6,7 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
-  const API_BASE = process.env.REACT_APP_API_URL;
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     console.log("🛒 cartItems updated:", cartItems);
@@ -14,11 +14,11 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
-    const token = JSON.parse(localStorage.getItem("token"));
+    const token = localStorage.getItem("token");
 
     if (user && token) {
       fetch(`${API_BASE}/cart/${user._id}`, {
-        headers: { authorization: `bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` },
       })
         .then(res => res.json())
         .then(data => {
@@ -34,7 +34,7 @@ export const CartProvider = ({ children }) => {
           console.error('Error fetching cart:', error);
         });
     }
-  }, []);
+  }, [API_BASE]);
 
   const addToCart = (newItem) => {
     setCartItems(prev => {
@@ -42,11 +42,11 @@ export const CartProvider = ({ children }) => {
       if (exists) {
         return prev.map(item =>
           item.productId === newItem.productId
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: item.quantity + (newItem.quantity || 1) }
             : item
         );
       } else {
-        return [...prev, { ...newItem, quantity: 1 }];
+        return [...prev, { ...newItem, quantity: newItem.quantity || 1 }];
       }
     });
   };

@@ -3,7 +3,7 @@ import "../App.css";
 import { useCart } from './CartContext';
 import { useNavigate } from 'react-router-dom'; 
 
-const API_BASE = process.env.REACT_APP_API_URL;
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const Cart = () => {
   const { cartItems, setCartItems } = useCart();
@@ -15,7 +15,7 @@ const Cart = () => {
 
   const getCartItems = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
-    const token = JSON.parse(localStorage.getItem("token"));
+    const token = localStorage.getItem("token"); // <-- FIX: no JSON.parse here
 
     const response = await fetch(`${API_BASE}/cart/${user._id}`, {
       headers: {
@@ -38,7 +38,7 @@ const Cart = () => {
 
   const removeFromCart = async (productId) => {
     const user = JSON.parse(localStorage.getItem("user"));
-    const token = JSON.parse(localStorage.getItem("token"));
+    const token = localStorage.getItem("token"); // <-- FIX: no JSON.parse here
 
     const response = await fetch(`${API_BASE}/cart/${user._id}/${productId}`, {
       method: "DELETE",

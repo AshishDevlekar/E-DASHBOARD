@@ -1,0 +1,39 @@
+# Node.js modules
+node_modules/
+
+# Environment variable files
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build or compiled output
+dist/
+build/
+coverage/
+
+# IDE or OS junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Testing
+*.test.js
+*.spec.js
+coverage/
+
+# PM2 process logs (if using PM2 for deployment)
+pids
+*.pid
+*.seed
+
+# Misc
+*.swp

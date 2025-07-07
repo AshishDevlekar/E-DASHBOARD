@@ -11,7 +11,17 @@ const Nav = ({ darkMode, setDarkMode }) => {
     console.log('🛒 Nav cartCount updated:', cartCount);
   }, [cartCount]);
 
-  const user = JSON.parse(localStorage.getItem('user'));
+  // ✅ Safely parse user from localStorage
+  let user = null;
+  try {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      user = JSON.parse(storedUser);
+    }
+  } catch (error) {
+    console.error('❌ Failed to parse user from localStorage:', error);
+  }
+
   const isAdmin = user?.role === 'admin';
 
   const logout = () => {

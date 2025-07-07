@@ -5,9 +5,19 @@ const PurchaseHistory = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const token = JSON.parse(localStorage.getItem("token"));
   const API_BASE = process.env.REACT_APP_API_URL;
+
+  let user = null;
+  try {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      user = JSON.parse(storedUser);
+    }
+  } catch (e) {
+    console.error("❌ Invalid user data in localStorage", e);
+  }
+
+  const token = localStorage.getItem("token"); // ✅ NO JSON.parse()
 
   useEffect(() => {
     if (!user || !token) {
@@ -36,7 +46,7 @@ const PurchaseHistory = () => {
     };
 
     fetchHistory();
-    const intervalId = setInterval(fetchHistory, 10000); // auto-refresh
+    const intervalId = setInterval(fetchHistory, 10000); // auto-refresh every 10s
 
     return () => clearInterval(intervalId);
   }, [API_BASE, user, token]);

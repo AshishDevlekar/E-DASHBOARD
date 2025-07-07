@@ -23,7 +23,11 @@ const purchaseSchema = new mongoose.Schema({
     type: String,
     enum: ['in progress', 'success', 'failed'],
     default: 'in progress'
+  },
+  statusUpdatedAt: {
+    type: Date,
+    default: null
   }
-}, { timestamps: true }); 
+}, { timestamps: true });
 
 module.exports = mongoose.model("Purchase", purchaseSchema);

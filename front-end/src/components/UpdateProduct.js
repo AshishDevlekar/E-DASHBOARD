@@ -13,14 +13,16 @@ const UpdateProduct = () => {
 
   const params = useParams();
   const navigate = useNavigate();
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     getProductDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getProductDetails = async () => {
     try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/product/${params.id}`);
+      const res = await fetch(`${API_BASE}/product/${params.id}`);
       if (!res.ok) throw new Error("Failed to fetch product");
       const result = await res.json();
 
@@ -38,7 +40,8 @@ const UpdateProduct = () => {
   };
 
   const updateProduct = async () => {
-    const token = JSON.parse(localStorage.getItem("token"));
+    const token = localStorage.getItem("token"); // ✅ FIXED here
+
     if (!name || !price || !category || !company) {
       alert("⚠️ Please fill all required fields.");
       return;
@@ -46,7 +49,7 @@ const UpdateProduct = () => {
 
     try {
       setLoading(true);
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/product/${params.id}`, {
+      const response = await fetch(`${API_BASE}/product/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -83,15 +86,54 @@ const UpdateProduct = () => {
     <div className='addproduct'>
       <h1>Update Product</h1>
 
-      <input type='text' placeholder='Enter Product Name' value={name} onChange={(e) => setName(e.target.value)} />
-      <input type='text' placeholder='Enter Product Price' value={price} onChange={(e) => setPrice(e.target.value)} />
-      <input type='text' placeholder='Enter Product Category' value={category} onChange={(e) => setCategory(e.target.value)} />
-      <input type='text' placeholder='Enter Product Company' value={company} onChange={(e) => setCompany(e.target.value)} />
-      <input type='text' placeholder='Enter Image URL' value={image} onChange={(e) => setImage(e.target.value)} />
-      <input type='text' placeholder='Enter Rating (e.g. 4.5)' value={rating} onChange={(e) => setRating(e.target.value)} />
-      <textarea placeholder='Enter Product Description' value={description} onChange={(e) => setDescription(e.target.value)} />
+      <input
+        type='text'
+        placeholder='Enter Product Name'
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        type='number'
+        placeholder='Enter Product Price'
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+      />
+      <input
+        type='text'
+        placeholder='Enter Product Category'
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+      />
+      <input
+        type='text'
+        placeholder='Enter Product Company'
+        value={company}
+        onChange={(e) => setCompany(e.target.value)}
+      />
+      <input
+        type='text'
+        placeholder='Enter Image URL'
+        value={image}
+        onChange={(e) => setImage(e.target.value)}
+      />
+      <input
+        type='number'
+        step='0.1'
+        placeholder='Enter Rating (e.g. 4.5)'
+        value={rating}
+        onChange={(e) => setRating(e.target.value)}
+      />
+      <textarea
+        placeholder='Enter Product Description'
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
 
-      <button onClick={updateProduct} className='appButton' disabled={loading}>
+      <button
+        onClick={updateProduct}
+        className='appButton'
+        disabled={loading}
+      >
         {loading ? 'Updating...' : 'Update Product'}
       </button>
     </div>

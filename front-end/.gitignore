@@ -1,38 +1,33 @@
-<<<<<<< HEAD
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# Node modules
 /node_modules
-/.pnp
-.pnp.js
+**/node_modules/
 
-# testing
+# Build output
+/build
+frontend/build/
+
+# Testing
 /coverage
 
-# production
-/build
-
-# misc
-.DS_Store
+# Environment files
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-=======
-# Ignore all node_modules
-node_modules/
-**/node_modules/
-
-# Ignore logs
 *.log
 
-# Ignore environment files
-.env
+# Misc
+.DS_Store
+.pnp
+.pnp.js
 
-# Ignore build folders (optional)
-frontend/build/
->>>>>>> 375812b015fa08d88a8642003815acc773f15795
+# IDE and system files
+.vscode/
+.idea/
+*.swp

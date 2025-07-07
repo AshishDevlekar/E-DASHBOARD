@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCart } from './CartContext';
 import { useNavigate } from 'react-router-dom';
 
 const AddToCart = ({ product }) => {
   const { setCartItems } = useCart();
   const navigate = useNavigate();
-  const API_BASE = process.env.REACT_APP_API_URL;
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const [loading, setLoading] = useState(false);
 
   const handleAddToCart = async () => {
     const user = JSON.parse(localStorage.getItem("user"));
-    const token = JSON.parse(localStorage.getItem("token"));
+    const token = localStorage.getItem("token");
 
     if (!user || !token) {
       alert("Please log in to add to cart.");
@@ -17,12 +18,13 @@ const AddToCart = ({ product }) => {
       return;
     }
 
+    setLoading(true);
     try {
       const response = await fetch(`${API_BASE}/cart/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          authorization: `bearer ${token}`
+          Authorization: `Bearer ${token}`  // note capital A
         },
         body: JSON.stringify({
           productId: product._id,
@@ -35,10 +37,11 @@ const AddToCart = ({ product }) => {
 
       if (response.ok) {
         const cartRes = await fetch(`${API_BASE}/cart/${user._id}`, {
-          headers: { authorization: `bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` }
         });
 
         const updatedCart = await cartRes.json();
+
         const patched = Array.isArray(updatedCart)
           ? updatedCart.map(item => ({
               ...item,
@@ -55,11 +58,15 @@ const AddToCart = ({ product }) => {
     } catch (error) {
       console.error("Add to cart error:", error);
       alert("Something went wrong ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <button onClick={handleAddToCart}>Add to Cart</button>
+    <button onClick={handleAddToCart} disabled={loading}>
+      {loading ? "Adding..." : "Add to Cart"}
+    </button>
   );
 };
 
