@@ -56,7 +56,7 @@ const Payment = () => {
     const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
     try {
-      // ✅ Save purchases
+      // ✅ Save each purchase
       for (const item of cartItems) {
         await fetch(`${API_BASE}/purchase`, {
           method: 'POST',
@@ -66,7 +66,7 @@ const Payment = () => {
           },
           body: JSON.stringify({
             userId: user._id,
-            productId: item.productId || item._id, // <-- FIX HERE
+            productId: item.productId || item._id, // Safety check
             productName: item.name,
             price: item.price,
             quantity: item.quantity || 1,
@@ -74,8 +74,8 @@ const Payment = () => {
         });
       }
 
-      // ✅ Clear cart from server
-      await fetch(`${API_BASE}/cart/clear/${user._id}`, {
+      // ✅ Clear the cart (UPDATED URL)
+      await fetch(`${API_BASE}/cart/${user._id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`
@@ -83,7 +83,7 @@ const Payment = () => {
       });
 
       alert("💳 Payment Successful!");
-      setCartItems([]);
+      setCartItems([]); // Clear local cart state
       navigate('/profile');
     } catch (err) {
       console.error("❌ Payment error:", err);
