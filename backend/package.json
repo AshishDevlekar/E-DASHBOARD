@@ -6,16 +6,22 @@
   "author": "",
   "type": "commonjs",
   "main": "index.js",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^17.0.1",
-    "express": "^5.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.15.2",
+    "mongoose": "^8.15.2"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.10"
   }
 }

@@ -14,10 +14,7 @@ const app = express();
 const JwtKey = process.env.JWT_SECRET || 'fallback-secret';
 
 // ✅ MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB connection error:", err));
 
@@ -153,17 +150,25 @@ app.get('/product/:id', verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Search
+// ✅ Search Route - Fixed potential issue
 app.get('/search/:key', verifyToken, async (req, res) => {
-  const key = req.params.key;
-  const result = await Product.find({
-    "$or": [
-      { name: { $regex: key, $options: "i" } },
-      { category: { $regex: key, $options: "i" } },
-      { company: { $regex: key, $options: "i" } }
-    ]
-  });
-  res.send(result);
+  try {
+    const key = req.params.key;
+    if (!key || key.trim() === '') {
+      return res.status(400).send({ error: 'Search key is required' });
+    }
+    
+    const result = await Product.find({
+      "$or": [
+        { name: { $regex: key, $options: "i" } },
+        { category: { $regex: key, $options: "i" } },
+        { company: { $regex: key, $options: "i" } }
+      ]
+    });
+    res.send(result);
+  } catch (err) {
+    res.status(500).send({ error: 'Failed to search products' });
+  }
 });
 
 // ✅ Cart Routes
@@ -228,12 +233,13 @@ app.get('/purchase-history/:userId', verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Serve React Frontend in Production
+// ✅ Serve React Frontend in Production - FIXED CATCH-ALL ROUTE
 if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, 'front-end/build'); // ✅ corrected path
+  const frontendPath = path.join(__dirname, 'front-end/build');
   app.use(express.static(frontendPath));
 
-  app.get('/*', (req, res) => {
+  // Fixed: Use '*' instead of '/*' for catch-all route
+  app.get('*', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
   });
 }
