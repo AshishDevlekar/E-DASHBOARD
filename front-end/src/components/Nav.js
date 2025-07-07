@@ -33,7 +33,7 @@ const Nav = ({ darkMode, setDarkMode }) => {
       <div className='nav-left'>
         <img alt='logo' className='logo' src={logo} />
         <button onClick={() => setDarkMode(!darkMode)} className='dark-mode-toggle'>
-          {darkMode ? 'Light Mode' : 'Dark Mode'}
+          {darkMode ? '☀️' : '🌙'}
         </button>
       </div>
 

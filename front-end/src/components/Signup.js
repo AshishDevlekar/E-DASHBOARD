@@ -9,7 +9,6 @@ const Signup = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Fallback to localhost if env variable is missing
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
@@ -26,8 +25,6 @@ const Signup = () => {
     setError("");
     setLoading(true);
 
-    console.log("Using API URL:", API_BASE);  // Debug API URL
-
     try {
       const response = await fetch(`${API_BASE}/register`, {
         method: 'POST',
@@ -38,10 +35,8 @@ const Signup = () => {
       const result = await response.json();
 
       if (response.ok && result.auth) {
-        localStorage.setItem("user", JSON.stringify(result.user));
-        localStorage.setItem("token", result.auth);
-        alert("✅ Registration successful!");
-        navigate('/');
+        alert("✅ Registration successful! Please log in.");
+        navigate('/login');
       } else {
         setError(result.result || result.error || "❌ Registration failed. Try again.");
       }
