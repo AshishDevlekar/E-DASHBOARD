@@ -24,7 +24,7 @@ app.use(express.json());
 // ✅ CORS Setup - UPDATED WITH CURRENT FRONTEND DOMAIN
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://e-dashboard-am23.vercel.app',
+  'https://e-dashboard-mz5d.vercel.app',
   'https://e-comm-676c-qdx37j5vo-ashish-devlekars-projects-bf9c690b.vercel.app'
 ];
 
