@@ -185,7 +185,7 @@ const Cart = () => {
       {cartItems.length === 0 ? (
         <div className="empty-cart">
           <p>No items in cart</p>
-          <button onClick={() => navigate('/products')}>Continue Shopping</button>
+          <button onClick={() => navigate('/')}>Continue Shopping</button>
         </div>
       ) : (
         <>
@@ -252,7 +252,7 @@ const Cart = () => {
           <div className="cart-actions">
             <button 
               className="continue-shopping-btn" 
-              onClick={() => navigate('/products')}
+              onClick={() => navigate('/')}
             >
               Continue Shopping
             </button>
