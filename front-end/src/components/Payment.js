@@ -15,82 +15,82 @@ const Payment = () => {
     (sum, item) => sum + item.price * (item.quantity || 1),
     0
   );
+const handlePayment = async () => {
+  const cardRegex = /^\d{16}$/;
+  const cvvRegex = /^\d{3}$/;
+  const nameRegex = /^[A-Za-z\s]+$/;
 
-  const handlePayment = async () => {
-    const cardRegex = /^\d{16}$/;
-    const cvvRegex = /^\d{3}$/;
-    const nameRegex = /^[A-Za-z\s]+$/;
+  if (!name || !cardNumber || !cvv) {
+    alert("⚠️ Please fill in all payment fields.");
+    return;
+  }
 
-    if (!name || !cardNumber || !cvv) {
-      alert("⚠️ Please fill in all payment fields.");
-      return;
+  if (!cardRegex.test(cardNumber)) {
+    alert("⚠️ Card number must be exactly 16 digits.");
+    return;
+  }
+
+  if (!cvvRegex.test(cvv)) {
+    alert("⚠️ CVV must be exactly 3 digits.");
+    return;
+  }
+
+  if (!nameRegex.test(name)) {
+    alert("⚠️ Name should only contain letters and spaces.");
+    return;
+  }
+
+  let user = null;
+  try {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      user = JSON.parse(storedUser);
     }
+  } catch (err) {
+    alert("❌ Invalid user data. Please log in again.");
+    return;
+  }
 
-    if (!cardRegex.test(cardNumber)) {
-      alert("⚠️ Card number must be exactly 16 digits.");
-      return;
-    }
+  const token = localStorage.getItem("token");
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-    if (!cvvRegex.test(cvv)) {
-      alert("⚠️ CVV must be exactly 3 digits.");
-      return;
-    }
-
-    if (!nameRegex.test(name)) {
-      alert("⚠️ Name should only contain letters and spaces.");
-      return;
-    }
-
-    let user = null;
-    try {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        user = JSON.parse(storedUser);
-      }
-    } catch (err) {
-      alert("❌ Invalid user data. Please log in again.");
-      return;
-    }
-
-    const token = localStorage.getItem("token");
-    const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
-    try {
-      // ✅ Save each purchase
-      for (const item of cartItems) {
-        await fetch(`${API_BASE}/purchase`, {
-          method: 'POST',
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            userId: user._id,
-            productId: item.productId || item._id, // Safety check
-            productName: item.name,
-            price: item.price,
-            quantity: item.quantity || 1,
-          })
-        });
-      }
-
-      // ✅ Clear cart from server
-      await fetch(`${API_BASE}/cart/clear/${user._id}`, {
-        method: 'DELETE',
+  try {
+    // ✅ Save each purchase
+    for (const item of cartItems) {
+      await fetch(`${API_BASE}/purchase`, {
+        method: 'POST',
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
-        }
+        },
+        body: JSON.stringify({
+          userId: user._id,
+          productId: item.productId || item._id,
+          productName: item.name,
+          price: item.price,
+          quantity: item.quantity || 1,
+        })
       });
-
-      alert("💳 Payment Successful!");
-      clearCart(); // ✅ Clear frontend state properly
-      navigate('/profile');
-    } catch (err) {
-      console.error("❌ Payment error:", err);
-      alert("❌ Payment failed. Please try again.");
     }
-  };
 
+    // ✅ Clear backend cart using the CORRECT endpoint
+    await fetch(`${API_BASE}/cart/clear/${user._id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    // ✅ Clear local cart state using context
+    clearCart();
+
+    alert("💳 Payment Successful!");
+    navigate('/profile');
+  } catch (err) {
+    console.error("❌ Payment error:", err);
+    alert("❌ Payment failed. Please try again.");
+  }
+};  
   return (
     <div className="payment-page">
       <h2 style={{ textAlign: 'center' }}>Payment Details</h2>
