@@ -14,17 +14,25 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   useEffect(() => {
-    if (skipInitialFetch) return;
+    console.log("🔄 CartContext fetch effect triggered");
+    console.log("Skip initial fetch:", skipInitialFetch);
+    
+    if (skipInitialFetch) {
+      console.log("⏸️ Skipping fetch due to skipInitialFetch flag");
+      return;
+    }
 
     const user = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
 
     if (user && token) {
+      console.log("📡 Fetching cart for user:", user._id);
       fetch(`${API_BASE}/cart/${user._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then(res => res.json())
         .then(data => {
+          console.log("📦 Received cart data:", data);
           if (Array.isArray(data)) {
             const patched = data.map(item => ({
               ...item,
@@ -63,10 +71,15 @@ export const CartProvider = ({ children }) => {
   };
 
   const clearCart = () => {
-    setSkipInitialFetch(true);       // ✅ Prevent fetching stale cart from server
-    setCartItems([]);                // ✅ Clear cart locally
+    console.log("🧹 Clearing cart...");
+    setSkipInitialFetch(true);       // Prevent fetching stale cart from server
+    setCartItems([]);                // Clear cart locally
 
-    setTimeout(() => setSkipInitialFetch(false), 100); // ✅ Re-enable fetch after short delay
+    // Increased timeout to prevent race condition
+    setTimeout(() => {
+      setSkipInitialFetch(false);
+      console.log("✅ Cart cleared, fetch re-enabled");
+    }, 1000); // Changed from 100ms to 1000ms
   };
 
   const cartCount = useMemo(() => {
