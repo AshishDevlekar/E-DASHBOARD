@@ -21,9 +21,10 @@ mongoose.connect(process.env.MONGO_URI)
 // ✅ Middleware
 app.use(express.json());
 
-// ✅ CORS Setup
+// ✅ CORS Setup - FIXED WITH CORRECT DOMAIN
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://e-dashboard-iuv7.vercel.app',  // ✅ Added your actual frontend domain
   'https://e-dashboard-jnqm.vercel.app',
   'https://e-comm-676c-qdx37j5vo-ashish-devlekars-projects-bf9c690b.vercel.app'
 ];
