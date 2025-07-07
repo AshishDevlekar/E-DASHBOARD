@@ -3,7 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
 require('dotenv').config();
-const Jwt = require('jsonwebtoken'); // JWT after dotenv is okay
+const Jwt = require('jsonwebtoken');
 
 const User = require('./db/User');
 const Product = require('./db/Product');
@@ -228,11 +228,11 @@ app.get('/purchase-history/:userId', verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Serve React Frontend
+// ✅ Serve React Frontend in Production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  app.use(express.static(path.join(__dirname, '../front-end/build')));
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+    res.sendFile(path.join(__dirname, '../front-end/build/index.html'));
   });
 }
 
