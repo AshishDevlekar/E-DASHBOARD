@@ -11,7 +11,6 @@ const Nav = ({ darkMode, setDarkMode }) => {
     console.log('🛒 Nav cartCount updated:', cartCount);
   }, [cartCount]);
 
-  // ✅ Safely parse user from localStorage
   let user = null;
   try {
     const storedUser = localStorage.getItem('user');
@@ -44,10 +43,7 @@ const Nav = ({ darkMode, setDarkMode }) => {
             <>
               <li><Link to="/">Products</Link></li>
               {isAdmin && (
-                <>
-                  <li><Link to="/add">Add Product</Link></li>
-                  <li><Link to="/update/:id">Update Products</Link></li>
-                </>
+                <li><Link to="/add">Add Product</Link></li>
               )}
               <li><Link to="/profile">Profile</Link></li>
               <li><Link onClick={logout} to="/signup">Log Out</Link></li>
