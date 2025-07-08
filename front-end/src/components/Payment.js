@@ -10,6 +10,7 @@ const Payment = () => {
   const [cardNumber, setCardNumber] = useState('');
   const [cvv, setCvv] = useState('');
   const [name, setName] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false); // Add processing state
 
   const totalAmount = cartItems.reduce(
     (sum, item) => sum + item.price * (item.quantity || 1),
@@ -17,6 +18,8 @@ const Payment = () => {
   );
 
   const handlePayment = async () => {
+    if (isProcessing) return; // Prevent double submission
+
     const cardRegex = /^\d{16}$/;
     const cvvRegex = /^\d{3}$/;
     const nameRegex = /^[A-Za-z\s]+$/;
@@ -55,6 +58,8 @@ const Payment = () => {
     const token = localStorage.getItem("token");
     const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
+    setIsProcessing(true); // Set processing state
+
     try {
       // Save each purchase
       for (const item of cartItems) {
@@ -78,7 +83,7 @@ const Payment = () => {
         }
       }
 
-      // Clear backend cart with error handling
+      // Clear backend cart with better error handling
       const clearResponse = await fetch(`${API_BASE}/cart/clear/${user._id}`, {
         method: 'DELETE',
         headers: {
@@ -87,22 +92,28 @@ const Payment = () => {
       });
 
       if (!clearResponse.ok) {
-        throw new Error('Failed to clear cart on server');
+        const errorText = await clearResponse.text();
+        throw new Error(`Failed to clear cart on server: ${errorText}`);
       }
 
       console.log("✅ Backend cart cleared successfully");
 
-      // Clear local cart state
-      clearCart();
+      // Clear local cart state and wait for completion
+      await clearCart();
       
-      // Wait for state to update before navigation
-      await new Promise(resolve => setTimeout(resolve, 500));
-
+      // Show success message
       alert("💳 Payment Successful!");
-      navigate('/profile');
+      
+      // Navigate after a short delay to ensure state is updated
+      setTimeout(() => {
+        navigate('/profile');
+      }, 500);
+      
     } catch (err) {
       console.error("❌ Payment error:", err);
       alert(`❌ Payment failed: ${err.message}`);
+    } finally {
+      setIsProcessing(false); // Reset processing state
     }
   };  
 
@@ -119,6 +130,7 @@ const Payment = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Your Name"
+          disabled={isProcessing}
         />
 
         <label>Card Number</label>
@@ -128,6 +140,7 @@ const Payment = () => {
           onChange={(e) => setCardNumber(e.target.value)}
           placeholder="1234 5678 9012 3456"
           maxLength={16}
+          disabled={isProcessing}
         />
 
         <label>CVV</label>
@@ -137,10 +150,15 @@ const Payment = () => {
           onChange={(e) => setCvv(e.target.value)}
           placeholder="123"
           maxLength={3}
+          disabled={isProcessing}
         />
 
-        <button className="pay-button" onClick={handlePayment}>
-          Pay Now
+        <button 
+          className="pay-button" 
+          onClick={handlePayment}
+          disabled={isProcessing}
+        >
+          {isProcessing ? 'Processing...' : 'Pay Now'}
         </button>
       </form>
     </div>

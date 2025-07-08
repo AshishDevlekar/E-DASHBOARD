@@ -7,6 +7,7 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [skipInitialFetch, setSkipInitialFetch] = useState(false);
+  const [isClearing, setIsClearing] = useState(false); // New state to track clearing
   const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
@@ -16,9 +17,10 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     console.log("🔄 CartContext fetch effect triggered");
     console.log("Skip initial fetch:", skipInitialFetch);
+    console.log("Is clearing:", isClearing);
     
-    if (skipInitialFetch) {
-      console.log("⏸️ Skipping fetch due to skipInitialFetch flag");
+    if (skipInitialFetch || isClearing) {
+      console.log("⏸️ Skipping fetch due to skipInitialFetch flag or clearing state");
       return;
     }
 
@@ -45,7 +47,7 @@ export const CartProvider = ({ children }) => {
           console.error('Error fetching cart:', error);
         });
     }
-  }, [API_BASE, skipInitialFetch]);
+  }, [API_BASE, skipInitialFetch, isClearing]);
 
   const addToCart = (newItem) => {
     setCartItems(prev => {
@@ -70,16 +72,46 @@ export const CartProvider = ({ children }) => {
     setCartItems(newItems);
   };
 
-  const clearCart = () => {
+  // Updated clearCart function
+  const clearCart = async () => {
     console.log("🧹 Clearing cart...");
-    setSkipInitialFetch(true);       // Prevent fetching stale cart from server
-    setCartItems([]);                // Clear cart locally
+    setIsClearing(true);
+    setCartItems([]);
 
-    // Increased timeout to prevent race condition
-    setTimeout(() => {
-      setSkipInitialFetch(false);
-      console.log("✅ Cart cleared, fetch re-enabled");
-    }, 1000); // Changed from 100ms to 1000ms
+    // Optional: Add server verification
+    const user = JSON.parse(localStorage.getItem("user"));
+    const token = localStorage.getItem("token");
+    
+    if (user && token) {
+      try {
+        // Verify cart is cleared on server
+        const response = await fetch(`${API_BASE}/cart/${user._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        
+        if (response.ok) {
+          const serverCart = await response.json();
+          console.log("🔍 Server cart after clearing:", serverCart);
+          
+          // Only reset clearing state if server confirms empty cart
+          if (!Array.isArray(serverCart) || serverCart.length === 0) {
+            setIsClearing(false);
+            console.log("✅ Cart cleared and verified on server");
+          } else {
+            console.warn("⚠️ Server still has cart items, retrying...");
+            // Retry clearing or handle the inconsistency
+            setTimeout(() => setIsClearing(false), 2000);
+          }
+        }
+      } catch (error) {
+        console.error("❌ Error verifying cart clearing:", error);
+        // Fallback: reset after timeout
+        setTimeout(() => setIsClearing(false), 2000);
+      }
+    } else {
+      // No user/token, just reset the clearing state
+      setTimeout(() => setIsClearing(false), 1000);
+    }
   };
 
   const cartCount = useMemo(() => {
@@ -93,7 +125,8 @@ export const CartProvider = ({ children }) => {
     removeFromCart,
     clearCart,
     cartCount,
-  }), [cartItems, cartCount]);
+    isClearing, // Expose clearing state
+  }), [cartItems, cartCount, isClearing]);
 
   return (
     <CartContext.Provider value={contextValue}>
