@@ -354,29 +354,51 @@ app.delete('/cart/clear/:userId', verifyToken, async (req, res) => {
 // ✅ Purchase Routes
 app.post('/purchase', verifyToken, async (req, res) => {
   try {
-    const purchase = new Purchase(req.body);
-    const result = await purchase.save();
+    const { userId, items, total } = req.body;
 
-    // ✅ Immediately clear the user's cart
-    await Cart.deleteMany({ userId: req.body.userId });
+    if (!userId || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).send({ error: "Invalid purchase request" });
+    }
 
-    res.send(result);
-
-    // ✅ Simulate status update after 30 seconds
-    setTimeout(async () => {
-      try {
-        const status = Math.random() < 0.9 ? "success" : "failed";
-        await Purchase.findByIdAndUpdate(result._id, {
-          status,
-          statusUpdatedAt: new Date()
+    // Save each item as a separate Purchase entry
+    const purchases = await Promise.all(
+      items.map(item => {
+        const purchase = new Purchase({
+          userId,
+          productId: item.productId || item._id,
+          productName: item.name,
+          price: item.price,
+          quantity: item.quantity || 1,
+          total: item.price * (item.quantity || 1),
+          status: "in progress"
         });
-        console.log(`✅ Purchase ${result._id} marked as ${status}`);
-      } catch (err) {
-        console.error("❌ Failed to update status:", err);
-      }
-    }, 30000);
+        return purchase.save();
+      })
+    );
+
+    // Clear user's cart
+    await Cart.deleteMany({ userId });
+
+    res.send({ success: true, message: "Purchase successful", purchases });
+
+    // Schedule status update for each purchase entry after 30 sec
+    purchases.forEach(p => {
+      setTimeout(async () => {
+        try {
+          const status = Math.random() < 0.9 ? "success" : "failed";
+          await Purchase.findByIdAndUpdate(p._id, {
+            status,
+            statusUpdatedAt: new Date()
+          });
+          console.log(`✅ Purchase ${p._id} marked as ${status}`);
+        } catch (err) {
+          console.error("❌ Failed to update status:", err);
+        }
+      }, 30000);
+    });
 
   } catch (err) {
+    console.error("❌ Purchase error:", err);
     res.status(500).send({ error: 'Failed to complete purchase' });
   }
 });

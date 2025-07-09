@@ -10,7 +10,7 @@ const Payment = () => {
   const [cardNumber, setCardNumber] = useState('');
   const [cvv, setCvv] = useState('');
   const [name, setName] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false); // Add processing state
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const totalAmount = cartItems.reduce(
     (sum, item) => sum + item.price * (item.quantity || 1),
@@ -18,7 +18,7 @@ const Payment = () => {
   );
 
   const handlePayment = async () => {
-    if (isProcessing) return; // Prevent double submission
+    if (isProcessing) return;
 
     const cardRegex = /^\d{16}$/;
     const cvvRegex = /^\d{3}$/;
@@ -58,64 +58,41 @@ const Payment = () => {
     const token = localStorage.getItem("token");
     const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-    setIsProcessing(true); // Set processing state
+    setIsProcessing(true);
 
     try {
-      // Save each purchase
-      for (const item of cartItems) {
-        const response = await fetch(`${API_BASE}/purchase`, {
-          method: 'POST',
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            userId: user._id,
-            productId: item.productId || item._id,
-            productName: item.name,
-            price: item.price,
-            quantity: item.quantity || 1,
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to save purchase for ${item.name}`);
-        }
-      }
-
-      // Clear backend cart with better error handling
-      const clearResponse = await fetch(`${API_BASE}/cart/clear/${user._id}`, {
-        method: 'DELETE',
+      const response = await fetch(`${API_BASE}/purchase`, {
+        method: 'POST',
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
-        }
+        },
+        body: JSON.stringify({
+          userId: user._id,
+          items: cartItems,
+          total: totalAmount
+        })
       });
 
-      if (!clearResponse.ok) {
-        const errorText = await clearResponse.text();
-        throw new Error(`Failed to clear cart on server: ${errorText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to complete purchase: ${errorText}`);
       }
 
-      console.log("✅ Backend cart cleared successfully");
-
-      // Clear local cart state and wait for completion
+      // Clear local cart state
       await clearCart();
-      
-      // Show success message
+
       alert("💳 Payment Successful!");
-      
-      // Navigate after a short delay to ensure state is updated
       setTimeout(() => {
         navigate('/profile');
       }, 500);
-      
     } catch (err) {
       console.error("❌ Payment error:", err);
       alert(`❌ Payment failed: ${err.message}`);
     } finally {
-      setIsProcessing(false); // Reset processing state
+      setIsProcessing(false);
     }
-  };  
+  };
 
   return (
     <div className="payment-page">
@@ -153,8 +130,8 @@ const Payment = () => {
           disabled={isProcessing}
         />
 
-        <button 
-          className="pay-button" 
+        <button
+          className="pay-button"
           onClick={handlePayment}
           disabled={isProcessing}
         >
