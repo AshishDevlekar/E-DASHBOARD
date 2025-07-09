@@ -356,8 +356,13 @@ app.post('/purchase', verifyToken, async (req, res) => {
   try {
     const purchase = new Purchase(req.body);
     const result = await purchase.save();
+
+    // ✅ Immediately clear the user's cart
+    await Cart.deleteMany({ userId: req.body.userId });
+
     res.send(result);
 
+    // ✅ Simulate status update after 30 seconds
     setTimeout(async () => {
       try {
         const status = Math.random() < 0.9 ? "success" : "failed";
@@ -370,6 +375,7 @@ app.post('/purchase', verifyToken, async (req, res) => {
         console.error("❌ Failed to update status:", err);
       }
     }, 30000);
+
   } catch (err) {
     res.status(500).send({ error: 'Failed to complete purchase' });
   }
