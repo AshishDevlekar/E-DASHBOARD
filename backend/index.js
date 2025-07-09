@@ -354,13 +354,12 @@ app.delete('/cart/clear/:userId', verifyToken, async (req, res) => {
 // ✅ Purchase Routes
 app.post('/purchase', verifyToken, async (req, res) => {
   try {
-    const { userId, items, total } = req.body;
+    const { userId, items, deliveryAddress, paymentMethod } = req.body;
 
     if (!userId || !Array.isArray(items) || items.length === 0) {
       return res.status(400).send({ error: "Invalid purchase request" });
     }
 
-    // Save each item as a separate Purchase entry
     const purchases = await Promise.all(
       items.map(item => {
         const purchase = new Purchase({
@@ -370,18 +369,18 @@ app.post('/purchase', verifyToken, async (req, res) => {
           price: item.price,
           quantity: item.quantity || 1,
           total: item.price * (item.quantity || 1),
+          deliveryAddress,
+          paymentMethod,
           status: "in progress"
         });
         return purchase.save();
       })
     );
 
-    // Clear user's cart
     await Cart.deleteMany({ userId });
 
     res.send({ success: true, message: "Purchase successful", purchases });
 
-    // Schedule status update for each purchase entry after 30 sec
     purchases.forEach(p => {
       setTimeout(async () => {
         try {
@@ -417,7 +416,6 @@ if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.join(__dirname, 'front-end/build');
   app.use(express.static(frontendPath));
 
-  // Fixed: Use '*' instead of '/*' for catch-all route
   app.get('*', (req, res) => {
     res.sendFile(path.join(frontendPath, 'index.html'));
   });

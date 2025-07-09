@@ -15,6 +15,10 @@ import About from './components/About';
 import Contact from './components/Contact';
 import PrivacyPolicy from './components/Privacy';
 import TermsOfService from './components/TermsofServices';
+import DeliveryForm from './components/DeliveryForm';
+import PaymentMethod from './components/PaymentMethod';
+import CardPayment from './components/CardPayment';
+import GPayPayment from './components/Gpaypayment';
 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -54,6 +58,10 @@ function App() {
             )}
             <Route path='/profile' element={<PurchaseHistory />} />
             <Route path='/cart' element={<Cart />} />
+            <Route path='/delivery' element={<DeliveryForm />} />
+            <Route path='/payment-method' element={<PaymentMethod />} />
+            <Route path='/payment/card' element={<CardPayment />} />
+            <Route path='/payment/gpay' element={<GPayPayment />} />
             <Route path='/payment' element={<Payment />} />
             <Route path='/userdetail' element={<UserDetail />} />
           </Route>
