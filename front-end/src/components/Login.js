@@ -43,7 +43,7 @@ const Login = ({ setUser }) => {
         localStorage.setItem('user', JSON.stringify(result.user));
         localStorage.setItem('token', result.auth);
         setUser(result.user);
-        navigate('/');
+        navigate('/products');
       } else {
         setError('Incorrect email or password');
       }
