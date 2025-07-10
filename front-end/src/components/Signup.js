@@ -50,14 +50,6 @@ const Signup = () => {
 
   return (
     <div className='page-center'>
-      <div className='welcome-section'>
-        <h2>Welcome to E-Comm</h2>
-        <p>
-          Manage your products, track your orders, and deliver the best shopping experience.
-          Join us to simplify your business operations.
-        </p>
-      </div>
-
       <div className='register'>
         <h1>Register</h1>
 
