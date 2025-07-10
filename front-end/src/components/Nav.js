@@ -41,7 +41,7 @@ const Nav = ({ darkMode, setDarkMode }) => {
         <ul className='nav-ul'>
           {user ? (
             <>
-              <li><Link to="/">Products</Link></li>
+              <li><Link to="/products">Products</Link></li>
               {isAdmin && (
                 <li><Link to="/add">Add Product</Link></li>
               )}
