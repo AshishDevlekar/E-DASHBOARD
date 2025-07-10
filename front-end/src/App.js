@@ -52,6 +52,7 @@ function App() {
           {/* Protected routes */}
           <Route element={<PrivateComponent />}>
             <Route path="/dashboard" element={<ProductList />} />
+             <Route path="/products" element={<ProductList />} />
             {user?.role === 'admin' && (
               <>
                 <Route path="/add" element={<AddProduct />} />
