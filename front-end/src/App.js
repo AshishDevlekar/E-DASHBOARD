@@ -2,6 +2,7 @@ import './App.css';
 import Nav from './components/Nav';
 import Footer from './components/Footer';
 import Signup from './components/Signup';
+import Register from './components/Register';
 import PrivateComponent from './components/PrivateComponent';
 import Login from './components/Login';
 import AddProduct from './components/AddProduct';
@@ -66,8 +67,8 @@ function App() {
           </Route>
 
           {/* Public routes */}
+          <Route path="/register" element={<Register />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/register" element={<Signup />} />
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
