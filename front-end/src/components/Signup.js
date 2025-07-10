@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -87,6 +87,10 @@ const Signup = () => {
         >
           {loading ? "Signing Up..." : "Sign Up"}
         </button>
+
+        <p style={{ marginTop: '1rem' }}>
+          Already have an account? <Link to="/login">Sign In</Link>
+        </p>
       </div>
     </div>
   );

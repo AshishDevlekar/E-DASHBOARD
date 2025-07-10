@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import logo from '../assests/logo.jpg';
+import logo from '../assests/logo.png';
 import { useCart } from './CartContext';
 
 const Nav = ({ darkMode, setDarkMode }) => {

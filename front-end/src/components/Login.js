@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = ({ setUser }) => {
   const [email, setEmail] = useState("");
@@ -41,7 +41,7 @@ const Login = ({ setUser }) => {
 
       if (result.auth) {
         localStorage.setItem('user', JSON.stringify(result.user));
-        localStorage.setItem('token', result.auth); // token is already a string
+        localStorage.setItem('token', result.auth);
         setUser(result.user);
         navigate('/');
       } else {
@@ -87,6 +87,10 @@ const Login = ({ setUser }) => {
         >
           {loading ? "Logging in..." : "Login"}
         </button>
+
+        <p style={{ marginTop: '1rem' }}>
+          Don't have an account? <Link to="/signup">Sign Up</Link>
+        </p>
       </div>
     </div>
   );

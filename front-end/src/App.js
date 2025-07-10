@@ -15,6 +15,7 @@ import About from './components/About';
 import Contact from './components/Contact';
 import PrivacyPolicy from './components/Privacy';
 import TermsOfService from './components/TermsofServices';
+import SplashScreen from './components/SplashScreen'; // ✅ New
 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -40,36 +41,41 @@ function App() {
 
   return (
     <div className={darkMode ? 'App dark' : 'App'}>
-      <Nav darkMode={darkMode} setDarkMode={setDarkMode} />
+      {/* Hide navbar on splash screen */}
+      {location.pathname !== '/' && <Nav darkMode={darkMode} setDarkMode={setDarkMode} />}
 
       <main>
         <Routes>
+          {/* ✅ Splash screen as first route */}
+          <Route path="/" element={<SplashScreen />} />
+
+          {/* Protected routes */}
           <Route element={<PrivateComponent />}>
-            <Route path='/' element={<ProductList />} />
+            <Route path="/dashboard" element={<ProductList />} />
             {user?.role === 'admin' && (
               <>
-                <Route path='/add' element={<AddProduct />} />
-                <Route path='/update/:id' element={<UpdateProduct />} />
+                <Route path="/add" element={<AddProduct />} />
+                <Route path="/update/:id" element={<UpdateProduct />} />
               </>
             )}
-            <Route path='/profile' element={<PurchaseHistory />} />
-            <Route path='/cart' element={<Cart />} />
-            <Route path='/payment' element={<Payment />} />
-            <Route path='/userdetail' element={<UserDetail />} />
+            <Route path="/profile" element={<PurchaseHistory />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/userdetail" element={<UserDetail />} />
           </Route>
 
-          {/* Public Routes */}
-          <Route path='/signup' element={<Signup />} />
-          <Route path='/login' element={<Login setUser={setUser} />} />
-          <Route path='/about' element={<About />} />
-          <Route path='/contact' element={<Contact />} />
-          <Route path='/privacy' element={<PrivacyPolicy />} />
-          <Route path='/termsofservice' element={<TermsOfService />} />
+          {/* Public routes */}
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/termsofservice" element={<TermsOfService />} />
         </Routes>
       </main>
 
-      {/* Optional: Hide Footer on Login/Signup if desired */}
-      {!['/login', '/signup'].includes(location.pathname) && <Footer />}
+      {/* Hide footer on splash screen */}
+      {!['/login', '/signup', '/'].includes(location.pathname) && <Footer />}
     </div>
   );
 }
