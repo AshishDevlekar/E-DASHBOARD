@@ -25,6 +25,7 @@ app.use(express.json());
 const allowedOrigins = [
   'http://localhost:3000',
   'https://e-dashboard-mz5d.vercel.app',
+  'https://e-dashboard-mz5d-pvli0ozl5-ashish-devlekars-projects-bf9c690b.vercel.app',
   'https://e-comm-676c-qdx37j5vo-ashish-devlekars-projects-bf9c690b.vercel.app'
 ];
 
