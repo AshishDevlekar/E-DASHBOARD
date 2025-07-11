@@ -252,7 +252,7 @@ const Cart = () => {
           <div className="cart-actions">
             <button 
               className="continue-shopping-btn" 
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/products')}
             >
               Continue Shopping
             </button>
