@@ -114,8 +114,11 @@ const Payment = () => {
         <input
           type="text"
           value={cardNumber}
-          onChange={(e) => setCardNumber(e.target.value)}
-          placeholder="1234 5678 9012 3456"
+          onChange={(e) => {
+            const numericValue = e.target.value.replace(/\D/g, '');
+            setCardNumber(numericValue);
+          }}
+          placeholder="1234567812345678"
           maxLength={16}
           disabled={isProcessing}
         />
